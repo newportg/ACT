@@ -1,0 +1,33 @@
+@startuml BusinessContext
+!include <C4/C4_Container>
+!include <azure/AzureCommon>
+!include <azure/Integration/AzureServiceBusTopic>
+
+LAYOUT_WITH_LEGEND()
+LAYOUT_LEFT_RIGHT()
+AddElementTag("microService", $shape=EightSidedShape(), $fontColor="white", $legendText="micro service\neight sided")
+AddElementTag("storage", $shape=RoundedBoxShape(), $fontColor="white")
+
+SHOW_PERSON_OUTLINE()
+Person( user, User, "A User")
+System(hub, "Hub") 
+AzureServiceBusTopic(to, "New\Updated Tenancies", "Integration")
+AzureServiceBusTopic(from, "Reports References", "Integration")
+System(app, "Property Inspection Service", "Sends Propertys to be inspected", $tags = "microService")  
+System(doc, "DocMgr Service", "Document Management", $tags = "microService")
+System_Ext(svc, "ACT", "External Property Inspection service")
+
+Rel(user, hub, "Creates a new Tenacy", "Https")
+Rel(hub, to, "Hub Publish")
+Rel(hub, from, "Hub Subscribe")
+Rel_U(app, from, "Publish")
+Rel_U(app, to, "Subscribe")
+
+Rel(hub, app, "Ad-hoc Rest API calls", "Https")
+Rel(app, svc, "Send Property for inspection", "Https")
+Rel(app, doc, "Send Report to DocMgr")
+Rel(svc, app, "Report")
+
+Rel_U(hub, user, "Report Notificition")
+
+@enduml
