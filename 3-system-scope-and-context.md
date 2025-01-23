@@ -13,11 +13,12 @@ A internal user will have the ability to
 
 
 * The API runs as a microservice on our cloud platform, and will be accessible via a API Management interface.
-* The connection to the external Address provider is over HTTPS, secured by OAuth2.
-* The data passed in this application is not sensitive and doesn't need any encryption protocols.
+* The connection to the external service provider is over HTTPS, secured by OAuth2.
+* The data passed in this application is sensitive and will be covered by GDPR controls.
 * Any data retuned by the external provider will be stored, by our document management and scanned for viruses.
 * A service bus interface will be available, for asynchronous queueing of jobs.
 * A http interface will be available, for ad-hoc querying of information.
+* On completion of any tenancy information stored by the third party will be deleted.
 
 | Business Interface         | Channel          |
 | -------------------------- | ---------------- |

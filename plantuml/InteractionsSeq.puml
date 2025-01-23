@@ -1,0 +1,78 @@
+@startuml
+
+actor "Hub User" as user
+participant Hub as hub
+database HUbDb as hubdb
+queue "Service Bus" as bus
+participant Service as app
+database CosmosDb as db
+participant "Document Manager" as dm
+participant ACT as svc
+actor "ACT User" as svcUsr
+
+Group #LightBlue New/Update Tenancy 
+user -> hub ++ #gold : New/Update Tenancy
+hub --> user : 
+
+hub -> hubdb
+hub -> bus --:
+  bus -> app ++#gold:
+    app -> db ++#gold: Create/Update
+    db --> app --:
+
+    app -> svc ++#gold: 
+    svc --> app --:
+
+    app -> db ++#gold: Update
+    db --> app --:
+  app --> bus -- :
+End      
+
+== Schedule Period ==
+
+Group #lightyellow Report
+svc -> svcUsr ++#gold: Inspect Property
+svcUsr -> svcUsr :
+svcUsr --> svc --: Report
+
+svc -> app ++#gold: Report ready webhook
+app --> svc : Recvd
+
+app -> svc ++#gold: Get Report
+svc --> app --
+
+app -> db ++#gold: Update
+db --> app --:
+
+app -> dm ++#gold: Create new Document
+dm --> app --: Created
+app -> bus --: Publish
+
+bus -> hub ++#gold: Subscibe
+
+hub -> hubdb ++#gold: Update Attachment
+hubdb --> hub --:
+hub --> user --: Notify
+
+End
+
+Group #pink End Of Tenancy
+user -> hub : End Of Tenancy
+hub -> hubdb
+hub -> bus --:
+  bus -> app ++#gold:
+    app -> db ++#gold: Update
+    db --> app --:
+
+    app -> svc ++#gold: End Of Tenancy (Delete)
+    svc --> app --:
+
+    app -> db ++#gold: Update
+    db --> app --:
+  app --> bus -- :
+bus -> hub : Subscribe
+
+End
+
+
+@enduml

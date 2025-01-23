@@ -1,0 +1,59 @@
+@startuml System
+!include <C4/C4_Component>
+!include <azure/AzureCommon>
+!include <azure/Compute/AzureFunction>
+!include <azure/Web/AzureAPIManagement>
+!include <azure/Integration/AzureServiceBusTopic>
+!include <azure/Web/AzureSearch>
+
+LAYOUT_WITH_LEGEND()
+LAYOUT_LEFT_RIGHT()
+
+AddElementTag("microService", $shape=EightSidedShape(), $fontColor="white", $legendText="micro service\neight sided")
+AddElementTag("storage", $shape=RoundedBoxShape(), $fontColor="white")
+
+
+System_Boundary(c1, "Knight Frank") {
+    System_Boundary(auth, "Managed Identity") {
+        System(hub, "Hub, Property Transaction System") 
+
+'        AzureAPIManagement(apim, "APIM", "Management")
+
+        AzureServiceBusTopic(to, "New\Updated Tenancies", "Integration")
+        AzureServiceBusTopic(from, "Reports References", "Integration")
+
+        Container_Boundary(app, "Property Inspection Service", "Sends Propertys to be inspected", "", $tags = "microService") {
+            AzureFunction(aFunc, "Function - Property Inspection Service", "Http/Sbus Trigger")
+            Component(compDom, "Domain Logic Component", "Process, Rules and validation")
+            Component(compSec, "Security Component", "Provides functionality to validate callers and grant access to the service ")
+            Component(compSvc, "ACT Service Handler", "Provides functionality to interact with the ACT service")
+            Component(compAudit, "Audit Component", "Provides functionality that is useful for administration")
+        }
+
+        System(doc, "DocMgr Service", "Document Management", $tags = "microService")
+        SystemDb(hubDb, "Hub DB", "Transaction Managemnt Storage", $tags = "storage")
+    }
+    
+    System_Ext(svc, "ACT", "External Property Inspection service")    
+}
+
+'Rel(apim, aFunc, "")
+Rel(aFunc, compDom, "")
+Rel(aFunc, compSec, "")
+Rel(aFunc, doc, "")
+
+Rel(hub, hubDb, "Update Tenancy")
+Rel(hub, aFunc, "Ad-hoc Rest API calls", "Https")
+Rel(hub, to, "Hub Publish")
+Rel(hub, from, "Hub Subscribe")
+Rel_U(aFunc, from, "N* Publish")
+Rel_U(aFunc, to, "N* Subscribe")
+
+Rel(compDom, compSvc, "")
+Rel(compDom, compAudit, "")
+
+Rel(compSvc, svc, "Send Property for inspection", "Https")
+Rel(svc, compSvc, "Report")
+
+
+@enduml

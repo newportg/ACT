@@ -30,8 +30,8 @@ Rel_U(app, from, "Publish")
 Rel_U(app, to, "Subscribe")
 
 Rel(hub, app, "Ad-hoc Rest API calls", "Https")
-Rel(app, svc, "Send Property for inspection", "Https")
 Rel(app, doc, "Send Report to DocMgr")
+Rel(app, svc, "Send Property for inspection", "Https")
 Rel(svc, app, "Report")
 
 @enduml
