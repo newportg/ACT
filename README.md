@@ -2,12 +2,9 @@
 
 ACT
 
-
-## Contents <a href="#contents-.toc-heading" id="contents-.toc-heading"></a>
+## Contents 
 
 {% include "./SUMMARY.md" %}
-
-\[\[toc]]
 
 ## List of Figures
 
