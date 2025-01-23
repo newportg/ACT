@@ -12,12 +12,16 @@ Marshal responses and provide a asynchronous update back to the calling system.
 
 | **Name**                 | **Responsibility**                                                                       |
 | ------------------------ | ---------------------------------------------------------------------------------------- |
+| Hub                      | Rules and requirements to instigate ACT operations
 | Azure Function           | Is the interface to all systems. provides both Restful API and Service Bus Interfaces.   |
 | Security Component       | Provides all Managed Identity and User Identity/Access controls                          |
 | Audit Component          | Provides a standardised set of audit data retrieval methods, and SOC Alert rules         |
 | Cosmos Db Component      | Provides any abstractions or specialisations necessary to access Knight Franks Cosmos DB |
 | ACT Service Handler      | Is a specific interface for the ACT property inspection service.                         |
 | Domain Logic Component   | Provides rules and workflow to satisfy the requirements of this service                  |
+
+### Hub
+Hub is our internal system that currently manages Tenancies. Rules need to be applied to tenancies so that the ACT workflow is triggered. These rules will need to be applied when either a User interacts or a time scheduler operates on a tenancy.
 
 ### Azure Function
 
@@ -65,8 +69,9 @@ The sequence diagram below shows the flow of calls to the filter service.
 
 ### Component Detail
 
-1. Azure Function Detail
-2. Security Component
-3. Service Component
-4. Domain Logic Component
-5. Cosmos DB Component
+1. Hub Detail
+2. Azure Function Detail
+3. Security Component
+4. Service Component
+5. Domain Logic Component
+6. Cosmos DB Component
