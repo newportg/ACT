@@ -1,6 +1,7 @@
 @startuml
 
 actor "Hub User" as user
+actor "Timer" as timer
 participant Hub as hub
 database HUbDb as hubdb
 queue "Service Bus" as bus
@@ -20,7 +21,7 @@ hub -> bus --:
     app -> db ++#gold: Create/Update
     db --> app --:
 
-    app -> svc ++#gold: 
+    app -> svc ++#gold: Create/Update Tenancy
     svc --> app --:
 
     app -> db ++#gold: Update
@@ -57,7 +58,7 @@ hub --> user --: Notify
 End
 
 Group #pink End Of Tenancy
-user -> hub : End Of Tenancy
+timer -> hub : End Of Tenancy
 hub -> hubdb
 hub -> bus --:
   bus -> app ++#gold:
@@ -67,12 +68,28 @@ hub -> bus --:
     app -> svc ++#gold: End Of Tenancy (Delete)
     svc --> app --:
 
-    app -> db ++#gold: Update
+    app -> db ++#gold: Delete
     db --> app --:
   app --> bus -- :
 bus -> hub : Subscribe
 
 End
 
+== Periodic Housekeeping ==
+Group #pink Housekeeping
+timer -> hub
+hub -> bus ++#gold: Housekeeping message
+  bus -> app ++#gold:
+    app -> svc ++#gold: Get Tenancies
+    svc --> app --
+
+    app -> db ++#gold: Update
+    db --> app --
+  app --> bus --
+bus -> hub -- : Subscribe
+hub -> hubdb ++#gold: Update
+hubdb --> hub --
+
+End
 
 @enduml
