@@ -5,7 +5,7 @@ ACT
 
 ## Contents <a href="#contents-.toc-heading" id="contents-.toc-heading"></a>
 
-![TOC](SUMMARY.md)
+{% include "./SUMMARY.md" %}
 
 \[\[toc]]
 
