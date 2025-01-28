@@ -32,6 +32,11 @@ ACT
 
 ## SAD Lite
 
+|---|
+| Title |Author | SadLite |
+||
+
+
 <figure><img src=".gitbook/assets/sadlite.png" alt=""><figcaption></figcaption></figure>
 
 

@@ -1,5 +1,7 @@
 # 5, Building Block View
 
+{% include "./SUMMARY.md" %}
+
 ![image](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/newportg/ACT/master/plantuml/BuildingBlockView.puml)
 
 
