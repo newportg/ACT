@@ -2,6 +2,103 @@
 
 ACT is a third party property inspection service.
 
+```plantuml
+@startuml ACT Service
+
+Actor Negotiator as neg
+Actor Hub as App
+Actor Timer
+queue ServiceBus
+
+participant Service
+participant DocMgmt
+database  DataStore
+participant ACT as svc
+
+== Set Password Value ==
+Timer -> Service
+Service -> svc ++ #gold: Set Password Value
+svc --> Service --
+Service --> Timer
+
+... <size:18>**Periodically Reset the Password Value**</size> ...
+
+Timer -> Service
+Service -> svc ++ #gold: Set Password Value
+svc --> Service --
+Service --> Timer
+
+== Send Request == 
+neg -> App ++ #gold : Create Tenancy 
+        App -> ServiceBus ++ #gold : Send Create Tenancy details
+                ServiceBus -> Service  ++ #gold
+                        Service -> DataStore  : Save Message
+                        Service -> svc  ++ #gold : /pmtenancy
+                        svc --> Service --:
+                        Service -> DataStore  : Update Message        
+                Service --> ServiceBus --:
+        ServiceBus --> App --: Response
+App --> neg --: Notify   
+
+...
+
+neg -> App  ++ #gold: Update Tenancy {id}
+        App -> ServiceBus ++ #gold : Send Update Tenancy Information
+                ServiceBus -> Service ++ #gold : 
+                        Service -> DataStore  : Update Message
+                        Service -> svc ++ #gold: /pmtenancy/{id}
+                        svc --> Service --:
+                        Service -> DataStore  : Update Message        
+                Service --> ServiceBus --:
+        ServiceBus --> App --:
+App --> neg --: Notify
+
+== Post Inspection ==
+            svc -> Service ++ #gold: Webhook {id}
+            Service --> svc --: Acknowledge
+            Service -> svc ++ #gold: /GetReport/{id}
+            svc --> Service --
+            Service -> DocMgmt ++ #gold: Save Document
+            DocMgmt --> Service --
+        Service -> ServiceBus : Publish
+    ServiceBus -> App
+App -> neg : Notify 
+
+== End Of Tenancy ==
+App -> ServiceBus ++ #gold: Delete Tenancy {id}
+    ServiceBus -> Service ++ #gold:
+        Service -> svc ++ #gold: /pmdelete{id}
+        svc --> Service --
+        Service -> DataStore  : Delete Message 
+    Service --> ServiceBus --:
+ServiceBus --> App --
+
+== Error Handling ==
+group svc System Error 5xx
+        svc --> Service : HTTP Status 5xx
+        Service -> svc : Retry - Several Times
+        Service -> ServiceBus : Publish request onto Inbound.
+
+end
+group svc Data Error 4xx
+        svc --> Service : HTTP Status 4xx
+        Service --> ServiceBus
+        ServiceBus --> App
+        App --> neg : Notify
+end    
+
+
+== Ad Hoc ==
+App -> Service ++ #gold
+Service -> DataStore ++ #gold: Get Message
+DataStore --> Service --
+Service -> svc ++ #gold: Get Status
+svc --> Service  --
+Service -> DataStore : Update Message
+Service --> App --
+@enduml
+```
+
 ## Security
 
 All calls to ACT are authorised by specifying in the header a API key (x-api-key).
